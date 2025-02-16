@@ -31,11 +31,12 @@ public class Lexer {
      * 1. Store the input string in the 'input' field
      * 2. Initialize the tokens list as a new ArrayList
      * 3. Set the initial position to 0
-     *
      * @param input The source code string to be tokenized
      */
     public Lexer(String input) {
-        // Your code here
+        this.input = input;
+        this.tokens = new ArrayList<>();
+        this.position = 0;
     }
 
     /**
@@ -53,7 +54,27 @@ public class Lexer {
      * 4. If no pattern matches, throw RuntimeException for invalid input
      */
     public void tokenize() {
-        // Your code here
+        while (position < input.length()) {
+            String remainingInput = input.substring(position);
+            boolean matched = false;
+
+            for (int i = 0; i < PATTERNS.length; i++) {
+                Matcher matcher = PATTERNS[i].matcher(remainingInput);
+                if (matcher.lookingAt()) {
+                    String matchedText = matcher.group();
+                    if (i != 0) { // skip whitespace
+                        tokens.add(new String[]{TYPES[i], matchedText});
+                    }
+                    position += matchedText.length();
+                    matched = true;
+                    break;
+                }
+            }
+
+            if (!matched) {
+                throw new RuntimeException("Unexpected character at position: " + position);
+            }
+        }
     }
 
     /**
@@ -62,19 +83,26 @@ public class Lexer {
      * 2. Each token should be a String array with two elements:
      *    - First element: Token type (from TYPES array)
      *    - Second element: Token value (the actual text)
-     *
-     * @return List<String [ ]> The list of tokens
+     * @return List<String[]> The list of tokens
      */
     public List<String[]> getTokens() {
-        // Your code here
-        return null;
+        return tokens;
     }
 
     public static void main(String[] args) {
-        String code = "int x = 10; if (x > 5) { x = x + 1; }";
-        Lexer lexer = new Lexer(code);
-        lexer.tokenize();
-        for (String[] token : lexer.getTokens()) {
+        String code1 = "int x = 10;";
+        Lexer lexer1 = new Lexer(code1);
+        lexer1.tokenize();
+        System.out.println("Test Case 1: Basic Variable Declaration");
+        for (String[] token : lexer1.getTokens()) {
+            System.out.println(token[0] + ": " + token[1]);
+        }
+
+        String code2 = "if(x > 5){}";
+        Lexer lexer2 = new Lexer(code2);
+        lexer2.tokenize();
+        System.out.println("\nTest Case 2: If Statement");
+        for (String[] token : lexer2.getTokens()) {
             System.out.println(token[0] + ": " + token[1]);
         }
     }
